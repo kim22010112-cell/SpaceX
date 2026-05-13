@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>callspacex.com — Launch Prediction Markets</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── RESET & BASE ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+:root {
+  --black:   #000000;
+  --white:   #ffffff;
+  --off:     #f5f5f3;
+  --border:  #000000;
+  --mid:     #555555;
+  --light:   #aaaaaa;
+  --xlight:  #dddddd;
+  --paper:   #fafaf8;
+  --ink:     #111111;
+}
+
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: default;
+}
+
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ── UTILITY ──────────────────────────────────── */
+.mono { font-family: 'Space Mono', monospace; }
+.serif { font-family: 'DM Serif Display', serif; }
+.caps { text-transform: uppercase; letter-spacing: 0.08em; }
+.small { font-size: 11px; }
+.xsmall { font-size: 10px; }
+.mid-color { color: var(--mid); }
+.light-color { color: var(--light); }
+.border-top { border-top: 1px solid var(--border); }
+.border-bot { border-bottom: 1px solid var(--border); }
+.rule { border: none; border-top: 1px solid var(--border); margin: 0; }
+.rule-light { border: none; border-top: 1px solid var(--xlight); margin: 0; }
+
+/* ── MASTHEAD ─────────────────────────────────── */
+.masthead {
+  border-bottom: 3px solid var(--black);
+  padding: 0;
+}
+.masthead-top {
+  display: flex; align-items: stretch; justify-content: space-between;
+  border-bottom: 1px solid var(--black);
+}
+.masthead-kicker {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--mid); padding: 0.5rem 1.2rem;
+  border-right: 1px solid var(--black);
+  display: flex; align-items: center;
+}
+.masthead-date {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.08em;
+  color: var(--mid); padding: 0.5rem 1.2rem;
+  display: flex; align-items: center; gap: 1.5rem;
+}
+.masthead-date span { color: var(--black); font-weight: 700; }
+.masthead-center {
+  flex: 1; text-align: center;
+  padding: 1.5rem 1rem 1rem;
+  border-right: 1px solid var(--black);
+  border-left: 1px solid var(--black);
+}
+.masthead-wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.8rem, 7vw, 5.2rem);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--black);
+}
+.masthead-wordmark em { font-style: italic; color: var(--mid); }
+.masthead-tagline {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--mid); margin-top: 0.35rem;
+}
+.masthead-nav {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--black);
+  overflow-x: auto;
+}
+.masthead-nav a {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.55rem 1.1rem;
+  border-right: 1px solid var(--black);
+  color: var(--black);
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+.masthead-nav a:hover, .masthead-nav a.active {
+  background: var(--black); color: var(--white); text-decoration: none;
+}
+.masthead-ticker {
+  background: var(--black); color: var(--white);
+  font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.06em;
+  padding: 0.3rem 0; overflow: hidden; white-space: nowrap;
+}
+.ticker-track {
+  display: inline-flex; gap: 0;
+  animation: scroll-ticker 50s linear infinite;
+}
+.ticker-item { padding: 0 2rem; border-right: 1px solid #333; }
+.ticker-item.ok { color: #fff; }
+.ticker-item.fail { color: #aaa; text-decoration: line-through; }
+@keyframes scroll-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── LAYOUT GRID ──────────────────────────────── */
+.page-wrap { max-width: 1100px; margin: 0 auto; padding: 0; }
+
+.three-col {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  border-bottom: 1px solid var(--black);
+}
+.col-main { border-left: 1px solid var(--black); border-right: 1px solid var(--black); }
+.col-side { padding: 1.2rem; }
+
+/* ── HERO HEADLINE ────────────────────────────── */
+.hero-head {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--black);
+}
+.hero-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.15em; color: var(--mid);
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.label-pill {
+  display: inline-block; background: var(--black); color: var(--white);
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1.1;
+  color: var(--black); margin-bottom: 0.75rem;
+}
+.hero-title em { font-style: italic; }
+.hero-deck {
+  font-size: 13px; color: var(--mid); line-height: 1.6; max-width: 540px;
+}
+
+/* ── TWO HERO BOXES ──────────────────────────── */
+.hero-boxes {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--black);
+}
+.hero-box {
+  position: relative;
+  border-right: 1px solid var(--black);
+  overflow: hidden;
+  min-height: 360px;
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: var(--white);
+}
+.hero-box:last-child { border-right: none; }
+.hero-box:hover { background: var(--off); text-decoration: none; }
+.hero-box-label {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--black);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--black); color: var(--white);
+}
+.hero-box-label span { opacity: 0.5; font-size: 9px; }
+.box-canvas-wrap {
+  flex: 1; position: relative; overflow: hidden;
+  background: var(--black);
+}
+.box-canvas-wrap canvas {
+  display: block; width: 100%; height: 100%;
+}
+.box-canvas-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 1rem;
+}
+.box-overlay-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem; color: var(--white); line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+.box-overlay-sub {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: rgba(255,255,255,0.55); letter-spacing: 0.1em;
+}
+.hero-box-footer {
+  border-top: 1px solid var(--black);
+  padding: 0.6rem 1rem;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Space Mono', monospace; font-size: 10px; color: var(--mid);
+}
+.arrow-link {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--black); display: flex; align-items: center; gap: 0.3rem;
+}
+.arrow-link::after { content: '↗'; }
+
+/* ── SIDEBAR CARDS ────────────────────────────── */
+.sidebar-section { margin-bottom: 1.5rem; }
+.sidebar-title {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid);
+  padding-bottom: 0.4rem; margin-bottom: 0.8rem;
+  border-bottom: 1px solid var(--black);
+}
+.stat-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--xlight);
+  font-size: 12px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-val {
+  font-family: 'Space Mono', monospace; font-size: 12px;
+  font-weight: 700; color: var(--black);
+}
+.stat-lbl { color: var(--mid); font-size: 11px; }
+
+/* ── DEAL OF THE DAY ──────────────────────────── */
+.dotd-section {
+  border-bottom: 1px solid var(--black);
+  padding: 1.5rem;
+}
+.dotd-eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 0.6rem;
+}
+.dotd-q {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem; line-height: 1.2; margin-bottom: 0.6rem;
+  color: var(--black);
+}
+.dotd-q em { font-style: italic; }
+.dotd-resolve {
+  font-size: 11px; color: var(--mid); margin-bottom: 1.2rem; line-height: 1.5;
+  border-left: 2px solid var(--black); padding-left: 0.75rem;
+}
+
+/* PROB BAR */
+.prob-bar-wrap { margin-bottom: 1rem; }
+.prob-bar-label {
+  display: flex; justify-content: space-between;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  margin-bottom: 0.35rem;
+}
+.prob-pct { font-size: 1.2rem; font-weight: 700; font-family: 'Space Mono', monospace; }
+.prob-bar {
+  height: 8px; background: var(--xlight);
+  display: flex; gap: 1px;
+}
+.prob-yes { background: var(--black); transition: width 0.5s; }
+.prob-no  { background: var(--light);  transition: width 0.5s; }
+
+/* BET BUTTONS */
+.bet-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 0.8rem; }
+.btn-yes, .btn-no {
+  padding: 0.65rem; font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1.5px solid var(--black); background: none;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: background 0.12s, color 0.12s;
+}
+.btn-yes:hover { background: var(--black); color: var(--white); }
+.btn-no:hover  { background: var(--black); color: var(--white); }
+.btn-yes strong { font-size: 1.1rem; }
+.btn-no  strong { font-size: 1.1rem; }
+.btn-sub { font-size: 9px; letter-spacing: 0.05em; opacity: 0.6; }
+.vol-line {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--mid); text-align: center;
+  border-top: 1px solid var(--xlight); padding-top: 0.6rem;
+}
+
+/* VERIFY METHODS */
+.verify-section { border-bottom: 1px solid var(--black); padding: 1.2rem 1.5rem; }
+.verify-title {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 0.8rem; color: var(--mid);
+}
+.verify-method {
+  display: flex; gap: 0.8rem; align-items: flex-start;
+  padding: 0.75rem; border: 1px solid var(--black);
+  margin-bottom: 0.5rem; cursor: pointer;
+  transition: background 0.12s;
+  text-decoration: none; color: inherit;
+}
+.verify-method:hover { background: var(--off); text-decoration: none; }
+.v-num {
+  font-family: 'DM Serif Display', serif; font-size: 1.8rem;
+  color: var(--xlight); line-height: 1; flex-shrink: 0; width: 24px;
+}
+.v-body { flex: 1; }
+.v-name { font-size: 12px; font-weight: 500; color: var(--black); margin-bottom: 0.2rem; }
+.v-desc { font-size: 11px; color: var(--mid); line-height: 1.4; }
+.v-status {
+  display: flex; align-items: center; gap: 0.35rem;
+  margin-top: 0.35rem;
+  font-family: 'Space Mono', monospace; font-size: 9px; color: var(--mid);
+  letter-spacing: 0.08em;
+}
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--black); animation: pulse 1.5s infinite; flex-shrink: 0; }
+.pulse.wait { background: var(--light); animation: none; }
+@keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.2; } }
+
+/* ── MARKETS TABLE ────────────────────────────── */
+.markets-section { padding: 0; }
+.markets-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--black);
+  background: var(--black); color: var(--white);
+}
+.markets-header-title {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+.markets-header a {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--light);
+}
+.markets-header a:hover { color: var(--white); }
+.markets-table { width: 100%; border-collapse: collapse; }
+.markets-table th {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid);
+  padding: 0.5rem 1rem; text-align: left;
+  border-bottom: 1px solid var(--black); background: var(--off);
+}
+.markets-table th:last-child, .markets-table td:last-child { text-align: right; }
+.markets-table td {
+  padding: 0.7rem 1rem; font-size: 12px;
+  border-bottom: 1px solid var(--xlight); vertical-align: middle;
+}
+.markets-table tr:hover td { background: var(--off); }
+.td-rocket { font-family: 'DM Serif Display', serif; font-size: 1rem; line-height: 1.1; }
+.td-site { font-size: 10px; color: var(--mid); font-family: 'Space Mono', monospace; }
+.badge {
+  display: inline-block; font-family: 'Space Mono', monospace; font-size: 8px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.18rem 0.45rem; border: 1px solid;
+}
+.badge-live  { border-color: var(--black); background: var(--black); color: var(--white); }
+.badge-upcoming { border-color: var(--black); color: var(--black); }
+.badge-settled  { border-color: var(--xlight); color: var(--light); }
+.odds-mini { display: flex; gap: 4px; }
+.odd-y, .odd-n {
+  font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+  padding: 0.25rem 0.5rem; border: 1px solid; cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.odd-y { border-color: var(--black); color: var(--black); }
+.odd-y:hover { background: var(--black); color: var(--white); }
+.odd-n { border-color: var(--xlight); color: var(--mid); }
+.odd-n:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+.vol-cell { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--mid); }
+
+/* ── SITE LIST TABLE ──────────────────────────── */
+.sites-section { border-top: 1px solid var(--black); }
+.sites-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--black);
+}
+.sites-header-title {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+.sites-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--xlight); gap: 1px;
+  border-bottom: 1px solid var(--black);
+}
+.site-card {
+  background: var(--white); padding: 0.9rem;
+  cursor: pointer; transition: background 0.1s;
+  border: none;
+}
+.site-card:hover { background: var(--off); }
+.site-card.selected { background: var(--black); color: var(--white); }
+.site-card.selected .sc-country { color: rgba(255,255,255,0.5); }
+.sc-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-bottom: 0.5rem; display: block;
+}
+.sc-name { font-family: 'DM Serif Display', serif; font-size: 0.9rem; line-height: 1.2; margin-bottom: 0.2rem; }
+.sc-country { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--mid); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.sc-launches { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; }
+
+/* ── SITE DETAIL (selected) ───────────────────── */
+#siteDetailRow {
+  display: none;
+  border-bottom: 1px solid var(--black);
+  background: var(--black); color: var(--white);
+  padding: 1.5rem;
+}
+#siteDetailRow.open { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.5rem; }
+.sdrow-name {
+  font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 0.3rem;
+}
+.sdrow-meta {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: rgba(255,255,255,0.4); letter-spacing: 0.08em; line-height: 1.7;
+}
+.sdrow-stat { border-left: 1px solid #333; padding-left: 1rem; }
+.sdrow-stat-num {
+  font-family: 'DM Serif Display', serif; font-size: 1.8rem;
+  line-height: 1; margin-bottom: 0.2rem;
+}
+.sdrow-stat-lbl { font-family: 'Space Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; text-transform: uppercase; }
+.sd-bet-col { border-left: 1px solid #333; padding-left: 1rem; }
+.sd-bet-title {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-bottom: 0.75rem;
+}
+.sd-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sd-btn {
+  padding: 0.5rem; font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.3); background: none; color: var(--white);
+  cursor: pointer; transition: background 0.12s;
+}
+.sd-btn:hover { background: var(--white); color: var(--black); }
+.sd-odds-bar { display: flex; height: 3px; margin-top: 0.6rem; gap: 1px; }
+.sdo-y { background: var(--white); }
+.sdo-n { background: #555; }
+.sd-pct-row {
+  display: flex; justify-content: space-between;
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: rgba(255,255,255,0.4); margin-top: 0.3rem;
+}
+.sd-countdown {
+  font-family: 'Space Mono', monospace; font-size: 1.1rem;
+  font-weight: 700; margin-bottom: 0.5rem;
+  color: var(--white);
+}
+
+/* ── COHORT / PERFORMANCE ─────────────────────── */
+.perf-section {
+  border-top: 1px solid var(--black);
+  padding: 1.5rem;
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px; background: var(--xlight);
+}
+.perf-col { background: var(--white); padding: 1.2rem; }
+.perf-label {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid);
+  margin-bottom: 0.5rem; border-bottom: 1px solid var(--black); padding-bottom: 0.4rem;
+}
+.perf-num {
+  font-family: 'DM Serif Display', serif; font-size: 1.8rem;
+  line-height: 1; margin-bottom: 0.2rem;
+}
+.perf-sub { font-size: 11px; color: var(--mid); }
+
+/* ── HOW IT WORKS ─────────────────────────────── */
+.how-section {
+  border-top: 1px solid var(--black);
+  display: grid; grid-template-columns: repeat(3,1fr);
+  background: var(--xlight); gap: 1px;
+}
+.how-col { background: var(--white); padding: 1.5rem; }
+.how-num {
+  font-family: 'DM Serif Display', serif; font-size: 3rem;
+  color: var(--xlight); line-height: 1; margin-bottom: 0.75rem;
+}
+.how-title { font-size: 13px; font-weight: 500; margin-bottom: 0.5rem; }
+.how-desc { font-size: 12px; color: var(--mid); line-height: 1.6; }
+
+/* ── FOOTER ───────────────────────────────────── */
+footer {
+  border-top: 3px solid var(--black);
+  background: var(--black); color: var(--white);
+  padding: 0;
+}
+.footer-top {
+  display: grid; grid-template-columns: 2fr 1fr 1fr;
+  gap: 0; background: var(--xlight); border-bottom: 1px solid var(--black);
+}
+.footer-col {
+  padding: 1.5rem;
+  border-right: 1px solid var(--black);
+  background: var(--white);
+}
+.footer-col:last-child { border-right: none; }
+.footer-wordmark {
+  font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 0.4rem;
+}
+.footer-blurb { font-size: 12px; color: var(--mid); line-height: 1.6; margin-bottom: 1rem; }
+.footer-address {
+  font-family: 'Space Mono', monospace; font-size: 10px; color: var(--mid);
+  line-height: 1.8; font-style: normal;
+}
+.footer-col-title {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid);
+  border-bottom: 1px solid var(--black); padding-bottom: 0.4rem; margin-bottom: 0.8rem;
+}
+.footer-links { display: flex; flex-direction: column; gap: 0.45rem; }
+.footer-link {
+  font-size: 12px; color: var(--black); text-decoration: none;
+  display: flex; align-items: center; gap: 0.5rem;
+  transition: color 0.12s;
+}
+.footer-link:hover { color: var(--mid); }
+.fl-sym { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--light); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 1.5rem;
+  background: var(--black); border-top: 1px solid #222;
+}
+.footer-copy {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 0.08em; color: #555;
+}
+.footer-legal { display: flex; gap: 1.5rem; }
+.footer-legal a {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: #555; letter-spacing: 0.08em;
+  transition: color 0.12s;
+}
+.footer-legal a:hover { color: var(--white); }
+
+/* ── CANVAS GLOBE ─────────────────────────────── */
+#mapCanvas  { display: block; }
+#mktCanvas  { display: block; }
+
+/* ── RESPONSIVE ───────────────────────────────── */
+@media (max-width: 900px) {
+  .three-col { grid-template-columns: 1fr; }
+  .col-side { border-top: 1px solid var(--black); }
+  .hero-boxes { grid-template-columns: 1fr; }
+  .hero-box { min-height: 260px; }
+  .sites-grid { grid-template-columns: repeat(2,1fr); }
+  #siteDetailRow.open { grid-template-columns: 1fr 1fr; }
+  .perf-section { grid-template-columns: 1fr; }
+  .how-section { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .markets-table { font-size: 11px; }
+}
+@media (max-width: 600px) {
+  .masthead-top { flex-direction: column; }
+  .masthead-kicker, .masthead-date { border-right: none; border-bottom: 1px solid var(--black); }
+  .sites-grid { grid-template-columns: 1fr 1fr; }
+  .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+<!-- ═══════════════════════════════════════════
+     MASTHEAD
+════════════════════════════════════════════ -->
+<header class="masthead">
+  <div class="masthead-top">
+    <div class="masthead-kicker">Launch Prediction Markets</div>
+    <div class="masthead-center">
+      <div class="masthead-wordmark">callspacex.com</div>
+      <div class="masthead-tagline">Binary markets on rocket success &amp; failure · $500M per attempt</div>
+    </div>
+    <div class="masthead-date">
+      <div>Wed May 13, 2026</div>
+      <div>31+ <span>Active Sites</span></div>
+      <div>Vol <span>$4.2M</span></div>
+    </div>
+  </div>
+  <nav class="masthead-nav">
+    <a href="#hero-section" class="active">Markets</a>
+    <a href="#launch-map">Launch Map</a>
+    <a href="#active-markets">Active Contracts</a>
+    <a href="#sites">All Sites</a>
+    <a href="#how">How It Works</a>
+    <a href="https://osintframework.com/" target="_blank">OSINT / Compliance</a>
+    <a href="https://youtu.be/EUwtbCqtyxI?si=yROm60mhGHzISgqF" target="_blank">Demo ↗</a>
+  </nav>
+  <div class="masthead-ticker">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     MAIN 3-COL
+════════════════════════════════════════════ -->
+<div class="three-col" id="hero-section">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="col-side">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Platform Stats</div>
+      <div class="stat-row"><span class="stat-lbl">Total Sites</span><span class="stat-val">31+</span></div>
+      <div class="stat-row"><span class="stat-lbl">Avg Launch Cost</span><span class="stat-val">$500M</span></div>
+      <div class="stat-row"><span class="stat-lbl">Success Rate (avg)</span><span class="stat-val">91.4%</span></div>
+      <div class="stat-row"><span class="stat-lbl">Prediction Accuracy</span><span class="stat-val">94.7%</span></div>
+      <div class="stat-row"><span class="stat-lbl">Active Markets</span><span class="stat-val">6</span></div>
+      <div class="stat-row"><span class="stat-lbl">Daily Volume</span><span class="stat-val">$46,250</span></div>
+      <div class="stat-row"><span class="stat-lbl">Platform Vig (2%)</span><span class="stat-val">$925/day</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Countries Active</div>
+      <div class="stat-row"><span class="stat-lbl">🇺🇸 USA</span><span class="stat-val">9 sites</span></div>
+      <div class="stat-row"><span class="stat-lbl">🇨🇳 China</span><span class="stat-val">5 sites</span></div>
+      <div class="stat-row"><span class="stat-lbl">🇷🇺 Russia/KAZ</span><span class="stat-val">3 sites</span></div>
+      <div class="stat-row"><span class="stat-lbl">🇫🇷 France/ESA</span><span class="stat-val">1 site</span></div>
+      <div class="stat-row"><span class="stat-lbl">🇮🇳 India</span><span class="stat-val">1 site</span></div>
+      <div class="stat-row"><span class="stat-lbl">🇯🇵 Japan</span><span class="stat-val">2 sites</span></div>
+      <div class="stat-row"><span class="stat-lbl">Other</span><span class="stat-val">10 sites</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Data Sources</div>
+      <div class="stat-row" style="font-size:10px"><span class="stat-lbl">SpaceX API</span><span style="font-size:9px;color:var(--black);font-family:'Space Mono',monospace">LIVE</span></div>
+      <div class="stat-row" style="font-size:10px"><span class="stat-lbl">FAA Schedule</span><span style="font-size:9px;color:var(--black);font-family:'Space Mono',monospace">LIVE</span></div>
+      <div class="stat-row" style="font-size:10px"><span class="stat-lbl">NSF / NASASpaceflight</span><span style="font-size:9px;color:var(--black);font-family:'Space Mono',monospace">LIVE</span></div>
+      <div class="stat-row" style="font-size:10px"><span class="stat-lbl">Visual Evidence</span><span style="font-size:9px;color:var(--mid);font-family:'Space Mono',monospace">PENDING</span></div>
+    </div>
+  </aside>
+
+  <!-- CENTER MAIN -->
+  <main class="col-main">
+
+    <!-- HERO HEADLINE -->
+    <div class="hero-head">
+      <div class="hero-label">
+        <span class="label-pill">⬤ Live Market</span>
+        Deal of the Day
+      </div>
+      <h1 class="hero-title">Will the next <em>Starship</em> launch<br>achieve orbital insertion?</h1>
+      <p class="hero-deck">Contract resolves YES if Starship IFT-8 achieves a stable orbit and completes the planned reentry sequence. Data verified via SpaceX official X feed, FAA airspace filing, and SpaceX Starbase live camera feed.</p>
+    </div>
+
+    <!-- TWO HERO BOXES -->
+    <div class="hero-boxes" id="launch-map">
+
+      <!-- BOX 1: Globe / Launch Map → nextspaceflight -->
+      <a class="hero-box" href="https://nextspaceflight.com/launches/" target="_blank" id="hero-box-map">
+        <div class="hero-box-label">
+          Global Launch Map
+          <span>nextspaceflight.com ↗</span>
+        </div>
+        <div class="box-canvas-wrap" id="mapWrap">
+          <canvas id="mapCanvas"></canvas>
+          <div class="box-canvas-overlay">
+            <div class="box-overlay-title">31+ Active Spaceports</div>
+            <div class="box-overlay-sub">Click to open Next Spaceflight live schedule ↗</div>
+          </div>
+        </div>
+        <div class="hero-box-footer">
+          <span style="font-family:'Space Mono',monospace;font-size:10px" id="mapHoverLabel">Hover a site for details</span>
+          <span class="arrow-link">View Schedule</span>
+        </div>
+      </a>
+
+      <!-- BOX 2: Market / CME Options → cmegroup.com -->
+      <a class="hero-box" href="https://www.cmegroup.com/markets/energy/crude-oil.html#tab_c7Cn6Ai=options" target="_blank" id="hero-box-mkt">
+        <div class="hero-box-label">
+          Prediction Market
+          <span>cmegroup.com ↗</span>
+        </div>
+        <div class="box-canvas-wrap" id="mktWrap">
+          <canvas id="mktCanvas"></canvas>
+          <div class="box-canvas-overlay">
+            <div class="box-overlay-title">Starship IFT-8 · SpaceX Starbase</div>
+            <div class="box-overlay-sub">Click to open CME options chain ↗</div>
+          </div>
+        </div>
+        <div class="hero-box-footer">
+          <span style="font-family:'Space Mono',monospace;font-size:10px">T-<span id="cdTimer">--:--:--</span></span>
+          <span class="arrow-link">CME Options</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- DOTD BET PANEL -->
+    <div class="dotd-section">
+      <div class="dotd-eyebrow">Binary Contract · Resolves at T+90 min</div>
+      <div class="dotd-q">Will Starship IFT-8 achieve <em>orbital insertion</em>?</div>
+      <div class="dotd-resolve">
+        Resolves YES if SpaceX confirms stable orbit via official X post + independent tracking (Space-Track.org). Verified via SpaceX Starbase camera feed and FAA NOTAM filing.
+      </div>
+      <div class="prob-bar-wrap">
+        <div class="prob-bar-label">
+          <span>Probability</span><span class="prob-pct" id="probPct">67%</span>
+        </div>
+        <div class="prob-bar">
+          <div class="prob-yes" id="probYes" style="width:67%"></div>
+          <div class="prob-no"  id="probNo"  style="width:33%"></div>
+        </div>
+      </div>
+      <div class="bet-row">
+        <button class="btn-yes" onclick="placeBet('YES','Starship IFT-8')">
+          <strong>YES  67¢</strong>
+          <span class="btn-sub">+0.49x payout</span>
+        </button>
+        <button class="btn-no" onclick="placeBet('NO','Starship IFT-8')">
+          <strong>NO  33¢</strong>
+          <span class="btn-sub">+2.03x payout</span>
+        </button>
+      </div>
+      <div class="vol-line">Volume: $2,412,000 &nbsp;|&nbsp; Payout: $1.00 per share &nbsp;|&nbsp; Platform Vig: 2%</div>
+    </div>
+
+    <!-- VERIFICATION METHODS -->
+    <div class="verify-section">
+      <div class="verify-title">Dual-Source Verification Protocol</div>
+      <a class="verify-method" href="https://www.faa.gov/space/spaceports_by_state" target="_blank">
+        <div class="v-num">01</div>
+        <div class="v-body">
+          <div class="v-name">Official Schedule Verification</div>
+          <div class="v-desc">FAA launch schedule · Foreign space agency bulletins (JAXA, ISRO, ESA, CASC) · Direct launcher confirmation via official X/Twitter feed (SpaceX, Rocket Lab, ULA)</div>
+          <div class="v-status"><div class="pulse"></div>LIVE FEED ACTIVE</div>
+        </div>
+      </a>
+      <a class="verify-method" href="https://www.youtube.com/results?search_query=rocket+launch+live+now" target="_blank">
+        <div class="v-num">02</div>
+        <div class="v-body">
+          <div class="v-name">Visual Evidence Feed</div>
+          <div class="v-desc">Nearby surveillance camera footage · Live streamer coverage near launch site · Satellite imagery confirmation from Planet Labs or Maxar post-launch</div>
+          <div class="v-status"><div class="pulse wait"></div>AWAITING LAUNCH WINDOW</div>
+        </div>
+      </a>
+    </div>
+
+  </main><!-- /col-main -->
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="col-side">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Upcoming Windows</div>
+      <div id="upcomingList"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Recent Settlements</div>
+      <div id="settledList"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Resources</div>
+      <div class="footer-links">
+        <a href="https://docs.spacexdata.com/" target="_blank" class="footer-link"><span class="fl-sym">◈</span> SpaceX API Docs</a>
+        <a href="https://nextspaceflight.com/launches/" target="_blank" class="footer-link"><span class="fl-sym">◈</span> Next Spaceflight</a>
+        <a href="https://www.faa.gov/space/licenses" target="_blank" class="footer-link"><span class="fl-sym">◈</span> FAA Space Licenses</a>
+        <a href="https://www.cmegroup.com/markets/energy/crude-oil.html#tab_c7Cn6Ai=options" target="_blank" class="footer-link"><span class="fl-sym">◈</span> CME Options Chain</a>
+        <a href="https://osintframework.com/" target="_blank" class="footer-link"><span class="fl-sym">◈</span> OSINT Framework</a>
+        <a href="https://spacestatsonline.com/launchsites/" target="_blank" class="footer-link"><span class="fl-sym">◈</span> Launch Site Stats</a>
+        <a href="https://www.cftc.gov/LawRegulation/FederalRegister/proposedrules/2026-05105.html" target="_blank" class="footer-link"><span class="fl-sym">◈</span> CFTC Compliance</a>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /three-col -->
+
+<!-- ═══════════════════════════════════════════
+     ACTIVE CONTRACTS TABLE
+════════════════════════════════════════════ -->
+<section class="markets-section" id="active-markets">
+  <div class="markets-header">
+    <span class="markets-header-title">Active Liquidity Contracts</span>
+    <a href="https://nextspaceflight.com/launches/" target="_blank">View All Launches ↗</a>
+  </div>
+  <table class="markets-table">
+    <thead>
+      <tr>
+        <th>Rocket / Mission</th>
+        <th>Site</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>YES</th>
+        <th>NO</th>
+        <th>Volume</th>
+      </tr>
+    </thead>
+    <tbody id="marketsBody"></tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PERFORMANCE
+════════════════════════════════════════════ -->
+<div class="perf-section">
+  <div class="perf-col">
+    <div class="perf-label">Total Liquidity Pool</div>
+    <div class="perf-num">$4,200,000</div>
+    <div class="perf-sub">Across 6 active contracts</div>
+  </div>
+  <div class="perf-col">
+    <div class="perf-label">Daily Trading Volume</div>
+    <div class="perf-num">$46,250</div>
+    <div class="perf-sub">7-day rolling average</div>
+  </div>
+  <div class="perf-col">
+    <div class="perf-label">Platform Vig (2%)</div>
+    <div class="perf-num">$925/day</div>
+    <div class="perf-sub">On $500M+ underlying exposure</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SITE GRID
+════════════════════════════════════════════ -->
+<section class="sites-section" id="sites">
+  <div class="sites-header">
+    <span class="sites-header-title mono caps" style="font-size:11px;letter-spacing:0.15em">All Active Launch Sites — 31+</span>
+    <a href="https://spacestatsonline.com/launchsites/" target="_blank" style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase">spacestatsonline.com ↗</a>
+  </div>
+  <div class="sites-grid" id="siteGrid"></div>
+  <div id="siteDetailRow"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════ -->
+<section class="how-section" id="how">
+  <div class="how-col">
+    <div class="how-num">01</div>
+    <div class="how-title">Identify &amp; Verify Launch</div>
+    <div class="how-desc">Source an upcoming launch via FAA schedules, foreign space agency bulletins, or launcher social feeds. Cross-reference with live camera or streaming coverage near the launch site for dual confirmation.</div>
+  </div>
+  <div class="how-col">
+    <div class="how-num">02</div>
+    <div class="how-title">Take a Binary Position</div>
+    <div class="how-desc">Place a SUCCESS (YES) or FAILURE (NO) bet before the launch window closes. Odds adjust in real-time as market participants weigh in. No minimum, no maximum position size.</div>
+  </div>
+  <div class="how-col">
+    <div class="how-num">03</div>
+    <div class="how-title">Settlement at T+90 min</div>
+    <div class="how-desc">Markets settle T+90 min post-launch using dual-source verification: official agency confirmation + visual evidence from footage or streamer coverage. Instant payout on settlement at $1.00 per share.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-col">
+      <div class="footer-wordmark">callspacex.com</div>
+      <div class="footer-blurb">Launch prediction markets powered by dual-source verification. Capitalize on the $500M cost of every orbital attempt. Binary contracts, real-time odds, instant settlement.</div>
+      <address class="footer-address">
+        callspacex.com
+      </address>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Community</div>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/locallyfittedco" target="_blank" class="footer-link"><span class="fl-sym">◈</span> Instagram</a>
+        <a href="https://t.me/+t5kUNjNbBQw4ZTIx" target="_blank" class="footer-link"><span class="fl-sym">◈</span> Telegram (By Invitation)</a>
+        <a href="https://api.whatsapp.com/message/MUK2IZNFYTGSH1?autoload=1&app_absent=0" target="_blank" class="footer-link"><span class="fl-sym">◈</span> WhatsApp Business</a>
+        <a href="https://www.linkedin.com/company/locally-fitted-co" target="_blank" class="footer-link"><span class="fl-sym">◈</span> LinkedIn</a>
+        <a href="https://youtu.be/EUwtbCqtyxI?si=yROm60mhGHzISgqF" target="_blank" class="footer-link"><span class="fl-sym">▶</span> On Earth Liquidity Demo</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Legal &amp; Compliance</div>
+      <div class="footer-links">
+        <a href="https://osintframework.com/" target="_blank" class="footer-link"><span class="fl-sym">◈</span> InfoSec / OSINT Framework</a>
+        <a href="https://www.cftc.gov/LawRegulation/FederalRegister/proposedrules/2026-05105.html" target="_blank" class="footer-link"><span class="fl-sym">◈</span> CFTC Filing</a>
+        <a href="#" class="footer-link"><span class="fl-sym">◈</span> Risk Disclosure</a>
+        <a href="#" class="footer-link"><span class="fl-sym">◈</span> Privacy Policy</a>
+        <a href="#" class="footer-link"><span class="fl-sym">◈</span> Terms of Service</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 callspacex.com · All Rights Reserved</span>
+    <div class="footer-legal">
+      <a href="https://osintframework.com/" target="_blank">OSINT</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="https://www.cftc.gov/LawRegulation/FederalRegister/proposedrules/2026-05105.html" target="_blank">CFTC</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /page-wrap -->
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+/* ── DATA ──────────────────────────────────────── */
+const SITES = [
+  { id:'ksc',       name:'Kennedy Space Center',   country:'USA', lat:28.608,  lng:-80.604, launches:450, successRate:94, rocket:'Falcon 9',      next:'2026-05-18' },
+  { id:'ccsfs',     name:'Cape Canaveral SFS',      country:'USA', lat:28.489,  lng:-80.578, launches:380, successRate:96, rocket:'Falcon Heavy',  next:'2026-05-20' },
+  { id:'vafb',      name:'Vandenberg SFB',          country:'USA', lat:34.754,  lng:-120.520,launches:220, successRate:95, rocket:'Falcon 9',      next:'2026-05-22' },
+  { id:'starbase',  name:'SpaceX Starbase',         country:'USA', lat:25.997,  lng:-97.157, launches:18,  successRate:72, rocket:'Starship',      next:'2026-05-25' },
+  { id:'wallops',   name:'Wallops Flight Facility', country:'USA', lat:37.940,  lng:-75.466, launches:35,  successRate:91, rocket:'Minotaur IV',   next:'2026-06-01' },
+  { id:'psca',      name:'Pacific Spaceport AK',    country:'USA', lat:57.436,  lng:-152.338,launches:22,  successRate:68, rocket:'Astra',         next:'2026-06-10' },
+  { id:'ellington', name:'Ellington Airport TX',    country:'USA', lat:29.607,  lng:-95.159, launches:8,   successRate:88, rocket:'Horizontal',    next:'TBD' },
+  { id:'spaceam',   name:'Spaceport America NM',    country:'USA', lat:32.990,  lng:-106.975,launches:12,  successRate:90, rocket:'VSS Unity',     next:'2026-05-28' },
+  { id:'midland',   name:'Spaceport Midland TX',    country:'USA', lat:31.943,  lng:-102.202,launches:4,   successRate:85, rocket:'Horizontal',    next:'TBD' },
+  { id:'jiuquan',   name:'Jiuquan Launch Center',   country:'CHN', lat:40.961,  lng:100.298, launches:210, successRate:96, rocket:'Long March 2D', next:'2026-05-19' },
+  { id:'xichang',   name:'Xichang Launch Center',   country:'CHN', lat:28.246,  lng:102.027, launches:180, successRate:95, rocket:'Long March 3B', next:'2026-05-23' },
+  { id:'wenchang',  name:'Wenchang Space Center',   country:'CHN', lat:19.615,  lng:110.951, launches:42,  successRate:93, rocket:'Long March 5',  next:'2026-05-26' },
+  { id:'taiyuan',   name:'Taiyuan Launch Center',   country:'CHN', lat:38.849,  lng:111.608, launches:100, successRate:97, rocket:'Long March 6',  next:'2026-06-05' },
+  { id:'eastmar',   name:'Eastern Maritime Port',   country:'CHN', lat:35.000,  lng:120.300, launches:8,   successRate:91, rocket:'Long March 11', next:'2026-05-31' },
+  { id:'baikonur',  name:'Baikonur Cosmodrome',     country:'KAZ', lat:45.920,  lng:63.342,  launches:1400,successRate:97, rocket:'Soyuz',         next:'2026-05-30' },
+  { id:'plesetsk',  name:'Plesetsk Cosmodrome',     country:'RUS', lat:62.927,  lng:40.578,  launches:1600,successRate:95, rocket:'Rokot',         next:'2026-06-08' },
+  { id:'vostochny', name:'Vostochny Cosmodrome',    country:'RUS', lat:51.884,  lng:128.333, launches:18,  successRate:89, rocket:'Angara',        next:'2026-05-27' },
+  { id:'kourou',    name:'Guiana Space Centre',     country:'FRA', lat:5.236,   lng:-52.768, launches:280, successRate:95, rocket:'Ariane 6',      next:'2026-06-02' },
+  { id:'srihari',   name:'Satish Dhawan SC',        country:'IND', lat:13.720,  lng:80.230,  launches:55,  successRate:94, rocket:'PSLV',          next:'2026-06-15' },
+  { id:'taneg',     name:'Tanegashima SC',          country:'JPN', lat:30.400,  lng:130.968, launches:45,  successRate:92, rocket:'H-IIA',         next:'2026-06-20' },
+  { id:'uchinoura', name:'Uchinoura SC',            country:'JPN', lat:31.250,  lng:131.079, launches:32,  successRate:90, rocket:'Epsilon',       next:'TBD' },
+  { id:'mahia',     name:'Mahia Launch Complex',    country:'NZL', lat:-39.259, lng:177.864, launches:50,  successRate:91, rocket:'Electron',      next:'2026-05-21' },
+  { id:'semnan',    name:'Imam Khomeini SC',        country:'IRN', lat:35.235,  lng:53.922,  launches:12,  successRate:60, rocket:'Simorgh',       next:'TBD' },
+  { id:'shahroud',  name:'Shahroud Missile Range',  country:'IRN', lat:36.220,  lng:55.300,  launches:4,   successRate:58, rocket:'Qased',         next:'TBD' },
+  { id:'naro',      name:'Naro Space Center',       country:'KOR', lat:34.432,  lng:127.535, launches:8,   successRate:75, rocket:'KSLV-2 Nuri',   next:'2026-07-01' },
+  { id:'palmachim', name:'Palmachim Air Base',      country:'ISR', lat:31.895,  lng:34.689,  launches:10,  successRate:85, rocket:'Shavit',        next:'TBD' },
+  { id:'alcantara', name:'Alcantara Launch Center', country:'BRA', lat:-2.373,  lng:-44.397, launches:15,  successRate:72, rocket:'VLM',           next:'TBD' },
+  { id:'arnhem',    name:'Arnhem Space Center',     country:'AUS', lat:-12.259, lng:136.820, launches:5,   successRate:80, rocket:'Alpha',         next:'2026-08-01' },
+  { id:'andoya',    name:'Andøya Space Center',     country:'NOR', lat:69.295,  lng:16.021,  launches:8,   successRate:88, rocket:'Nammo',         next:'TBD' },
+  { id:'sutherland',name:'Sutherland Spaceport',    country:'GBR', lat:58.469,  lng:-4.216,  launches:2,   successRate:78, rocket:'LauncherOne',   next:'2026-09-01' },
+  { id:'sohae',     name:'Sohae Satellite LC',      country:'PRK', lat:39.660,  lng:124.705, launches:6,   successRate:42, rocket:'Paektusan',     next:'TBD' },
+];
+
+const MARKETS = [
+  { rocket:'Starship IFT-8',    site:'SpaceX Starbase, TX',    status:'live',     date:'May 25, 2026',  yes:67, volume:'$2,412,000' },
+  { rocket:'Falcon 9 · Starlink',site:'Cape Canaveral SFS, FL',status:'upcoming', date:'May 20, 2026',  yes:94, volume:'$870,000' },
+  { rocket:'Electron R27',      site:'Mahia LC, NZ',           status:'upcoming', date:'May 21, 2026',  yes:89, volume:'$320,000' },
+  { rocket:'Long March 2D',     site:'Jiuquan, China',         status:'upcoming', date:'May 19, 2026',  yes:96, volume:'$415,000' },
+  { rocket:'Ariane 6 VA262',    site:'Guiana SC, FR Guiana',   status:'upcoming', date:'Jun 02, 2026',  yes:93, volume:'$1,100,000' },
+  { rocket:'Falcon Heavy',      site:'Kennedy SC, FL',         status:'settled',  date:'Apr 28, 2026',  yes:96, volume:'$3,200,000' },
+];
+
+/* ── DOTS COLOR ────────────────────────────────── */
+function dotColor(launches) {
+  if (launches >= 50) return '#000';
+  if (launches >= 10) return '#555';
+  return '#aaa';
+}
+
+/* ── TICKER ────────────────────────────────────── */
+function buildTicker() {
+  const items = [
+    { t:'FALCON 9 SLC-40 · SUCCESS · T+9m42s', ok:true },
+    { t:'LONG MARCH 5 · WENCHANG · SUCCESS', ok:true },
+    { t:'ELECTRON R26 · MAHIA · SUCCESS', ok:true },
+    { t:'ARIANE 6 VA261 · KOUROU · SUCCESS', ok:true },
+    { t:'STARSHIP IFT-7 · STARBASE · PARTIAL FAILURE', ok:false },
+    { t:'SOYUZ MS-28 · BAIKONUR · SUCCESS', ok:true },
+    { t:'PSLV-C58 · SRIHARIKOTA · SUCCESS', ok:true },
+    { t:'H-IIA F48 · TANEGASHIMA · SUCCESS', ok:true },
+    { t:'SIMORGH · SEMNAN · FAILURE', ok:false },
+    { t:'NURI · NARO · SUCCESS', ok:true },
+  ];
+  const doubled = [...items, ...items];
+  document.getElementById('ticker').innerHTML = doubled.map(i =>
+    `<span class="ticker-item ${i.ok?'ok':'fail'}">
+      ${i.ok ? '● ' : '○ '}${i.t}
+    </span>`
+  ).join('');
+}
+
+/* ── UPCOMING SIDEBAR ───────────────────────────── */
+function buildSidebars() {
+  const ul = document.getElementById('upcomingList');
+  const upcoming = SITES.filter(s => s.next !== 'TBD').sort((a,b) => new Date(a.next)-new Date(b.next)).slice(0,6);
+  ul.innerHTML = upcoming.map(s => `
+    <div class="stat-row">
+      <span class="stat-lbl" style="font-size:10px">${s.rocket.split(' ')[0]} · ${s.country}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mid)">${new Date(s.next).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+    </div>`).join('');
+
+  const sl = document.getElementById('settledList');
+  sl.innerHTML = `
+    <div class="stat-row"><span class="stat-lbl" style="font-size:10px">Falcon Heavy · KSC</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mid)">YES · $3.2M</span></div>
+    <div class="stat-row"><span class="stat-lbl" style="font-size:10px">Electron R26 · Mahia</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mid)">YES · $280K</span></div>
+    <div class="stat-row"><span class="stat-lbl" style="font-size:10px">Simorgh · Semnan</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mid)">NO · $92K</span></div>
+    <div class="stat-row"><span class="stat-lbl" style="font-size:10px">H-IIA F48 · Japan</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mid)">YES · $510K</span></div>
+  `;
+}
+
+/* ── MARKETS TABLE ──────────────────────────────── */
+function buildMarkets() {
+  document.getElementById('marketsBody').innerHTML = MARKETS.map(m => {
+    const no = 100 - m.yes;
+    const bClass = m.status === 'live' ? 'badge-live' : m.status === 'upcoming' ? 'badge-upcoming' : 'badge-settled';
+    const bLabel = m.status === 'live' ? '⬤ LIVE' : m.status === 'upcoming' ? '◎ UPCOMING' : '✓ SETTLED';
+    return `<tr>
+      <td><div class="td-rocket">${m.rocket}</div></td>
+      <td><span class="td-site">${m.site}</span></td>
+      <td><span class="badge ${bClass}">${bLabel}</span></td>
+      <td style="font-family:'Space Mono',monospace;font-size:10px;color:var(--mid)">${m.date}</td>
+      <td><div class="odds-mini"><span class="odd-y" onclick="placeBet('YES','${m.rocket.replace(/'/g,"\\'")}')">YES ${m.yes}¢</span></div></td>
+      <td><div class="odds-mini"><span class="odd-n" onclick="placeBet('NO','${m.rocket.replace(/'/g,"\\'")}')">NO ${no}¢</span></div></td>
+      <td class="vol-cell">${m.volume}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── SITE GRID ──────────────────────────────────── */
+function buildSiteGrid() {
+  const sorted = [...SITES].sort((a,b) => b.launches - a.launches);
+  document.getElementById('siteGrid').innerHTML = sorted.map(s => `
+    <div class="site-card" id="sc_${s.id}" onclick="selectSite('${s.id}')">
+      <span class="sc-dot" style="background:${dotColor(s.launches)}"></span>
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-country">${s.country} · ${s.lat.toFixed(2)}°, ${s.lng.toFixed(2)}°</div>
+      <div class="sc-launches">${s.launches} launches</div>
+    </div>`).join('');
+}
+
+let selectedId = null;
+function selectSite(id) {
+  if (selectedId === id) {
+    selectedId = null;
+    document.querySelectorAll('.site-card').forEach(c => c.classList.remove('selected'));
+    const dr = document.getElementById('siteDetailRow');
+    dr.classList.remove('open'); dr.innerHTML = '';
+    return;
+  }
+  selectedId = id;
+  document.querySelectorAll('.site-card').forEach(c => c.classList.toggle('selected', c.id === 'sc_' + id));
+  const s = SITES.find(x => x.id === id);
+  if (!s) return;
+  const sp = s.successRate, fp = 100 - sp;
+  const launchStr = s.next === 'TBD' ? 'Window TBD' : new Date(s.next).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+  const dr = document.getElementById('siteDetailRow');
+  dr.innerHTML = `
+    <div>
+      <div class="sdrow-name">${s.name}</div>
+      <div class="sdrow-meta">
+        Country: ${s.country}<br>
+        LAT ${s.lat >= 0 ? s.lat.toFixed(4)+'° N' : Math.abs(s.lat).toFixed(4)+'° S'}<br>
+        LNG ${s.lng >= 0 ? s.lng.toFixed(4)+'° E' : Math.abs(s.lng).toFixed(4)+'° W'}
+      </div>
+    </div>
+    <div class="sdrow-stat">
+      <div class="sdrow-stat-num">${s.launches}</div>
+      <div class="sdrow-stat-lbl">Total Launches</div>
+      <br>
+      <div class="sdrow-stat-num">${s.successRate}%</div>
+      <div class="sdrow-stat-lbl">Success Rate</div>
+    </div>
+    <div class="sdrow-stat">
+      <div class="sdrow-stat-num">${s.rocket.split(' ').slice(0,2).join(' ')}</div>
+      <div class="sdrow-stat-lbl">Primary Vehicle</div>
+      <br>
+      <div class="sdrow-stat-num">${launchStr}</div>
+      <div class="sdrow-stat-lbl">Next Launch</div>
+    </div>
+    <div class="sd-bet-col">
+      <div class="sd-bet-title">Place a Bet — ${s.name}</div>
+      ${s.next !== 'TBD' ? `<div class="sd-countdown" id="sdcd">T-...</div>` : ''}
+      <div class="sd-btn-row">
+        <button class="sd-btn" onclick="placeBet('YES','${s.name.replace(/'/g,"\\'")}')">YES ${sp}¢<br><small style="font-size:9px;opacity:0.5">+${(100/sp-1).toFixed(2)}x</small></button>
+        <button class="sd-btn" onclick="placeBet('NO','${s.name.replace(/'/g,"\\'")}')">NO ${fp}¢<br><small style="font-size:9px;opacity:0.5">+${(100/fp-1).toFixed(2)}x</small></button>
+      </div>
+      <div class="sd-odds-bar">
+        <div class="sdo-y" style="width:${sp}%"></div>
+        <div class="sdo-n" style="width:${fp}%"></div>
+      </div>
+      <div class="sd-pct-row"><span>SUCCESS ${sp}%</span><span>FAILURE ${fp}%</span></div>
+    </div>`;
+  dr.classList.add('open');
+  if (s.next !== 'TBD') countdownTo(s.next, 'sdcd');
+  dr.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function countdownTo(dateStr, elId) {
+  function tick() {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const diff = new Date(dateStr) - Date.now();
+    if (diff <= 0) { el.textContent = 'T+00:00:00'; return; }
+    const h = Math.floor(diff/3600000), m = Math.floor(diff%3600000/60000), s = Math.floor(diff%60000/1000);
+    el.textContent = `T-${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+/* ── HERO COUNTDOWN ─────────────────────────────── */
+countdownTo('2026-05-25', 'cdTimer');
+
+/* ── BET MODAL ──────────────────────────────────── */
+function placeBet(outcome, name) {
+  alert(`callspacex.com — BET PLACED\n\nMission: ${name}\nOutcome: ${outcome}\n\nThis MVP is in demo mode.\nConnect a payment rail (Stripe / crypto) to activate live settlement.`);
+}
+
+/* ═══════════════════════════════════════════════════
+   MAP CANVAS — 2D Mercator B&W dot plot
+═══════════════════════════════════════════════════ */
+const mapCanvas = document.getElementById('mapCanvas');
+const mapCtx = mapCanvas.getContext('2d');
+let mapAnim = 0;
+
+function latLngToXY(lat, lng, W, H) {
+  const x = (lng + 180) / 360 * W;
+  const latR = lat * Math.PI / 180;
+  const mercN = Math.log(Math.tan(Math.PI/4 + latR/2));
+  const y = H/2 - W * mercN / (2 * Math.PI);
+  return { x, y };
+}
+
+function resizeMap() {
+  const wrap = document.getElementById('mapWrap');
+  mapCanvas.width = wrap.clientWidth || 400;
+  mapCanvas.height = wrap.clientHeight || 360;
+}
+
+function drawMapBW() {
+  mapAnim++;
+  const W = mapCanvas.width, H = mapCanvas.height;
+  mapCtx.clearRect(0, 0, W, H);
+
+  // BG
+  mapCtx.fillStyle = '#050505';
+  mapCtx.fillRect(0, 0, W, H);
+
+  // Grid
+  mapCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+  mapCtx.lineWidth = 0.5;
+  for (let lng = -180; lng <= 180; lng += 30) {
+    const x = (lng+180)/360*W;
+    mapCtx.beginPath(); mapCtx.moveTo(x,0); mapCtx.lineTo(x,H); mapCtx.stroke();
+  }
+  for (let lat = -60; lat <= 80; lat += 30) {
+    const {y} = latLngToXY(lat, 0, W, H);
+    mapCtx.beginPath(); mapCtx.moveTo(0,y); mapCtx.lineTo(W,y); mapCtx.stroke();
+  }
+
+  // Equator
+  mapCtx.strokeStyle = 'rgba(255,255,255,0.12)';
+  mapCtx.lineWidth = 1;
+  const eq = latLngToXY(0, 0, W, H);
+  mapCtx.beginPath(); mapCtx.moveTo(0,eq.y); mapCtx.lineTo(W,eq.y); mapCtx.stroke();
+
+  // Continent outlines — simplified dots
+  const continentPts = [
+    // North America outline hints
+    [40,-75],[35,-75],[30,-80],[25,-80],[20,-87],[15,-87],[10,-83],
+    [45,-63],[50,-55],[55,-60],[60,-64],[65,-68],[70,-78],[72,-85],[68,-95],[60,-95],
+    [55,-100],[50,-105],[45,-110],[40,-110],[35,-115],[30,-117],[35,-120],[40,-124],[45,-122],[50,-125],
+    [55,-130],[60,-140],[64,-141],[68,-135],[70,-130],[72,-125],
+    // South America
+    [10,-62],[5,-52],[0,-50],[-5,-35],[-10,-37],[-15,-39],[-20,-40],[-25,-43],[-30,-50],
+    [-35,-57],[-40,-62],[-45,-65],[-50,-68],[-55,-67],[-55,-64],[-50,-69],[-45,-66],
+    [-40,-65],[-35,-58],[-30,-51],[-25,-50],[-20,-42],[-15,-40],[-10,-36],[-5,-35],
+    // Europe
+    [35,24],[40,26],[42,25],[45,19],[47,12],[52,4],[55,5],[58,5],[60,5],[62,5],[64,14],[68,14],[70,28],
+    [72,24],[68,18],[65,15],[60,18],[55,18],[50,18],[48,20],[46,15],[44,12],[42,12],
+    // Africa
+    [37,10],[35,11],[33,11],[30,30],[26,33],[20,37],[15,40],[10,42],[5,40],[0,42],
+    [-5,40],[-10,36],[-15,35],[-20,35],[-25,33],[-30,30],[-33,27],[-35,20],[-33,18],
+    [-30,16],[-25,14],[-20,12],[-15,12],[-10,14],[-5,10],[0,8],[5,2],[10,-2],[15,-2],
+    [20,15],[25,14],[30,30],[35,36],
+    // Asia
+    [40,36],[44,34],[44,40],[42,48],[45,48],[50,50],[55,60],[60,55],[65,55],[70,60],
+    [72,80],[70,100],[68,110],[65,120],[60,130],[55,130],[50,135],[45,130],[40,128],
+    [35,130],[30,122],[25,120],[20,110],[15,100],[10,98],[5,100],[0,104],[5,103],
+    [10,104],[15,108],[20,110],[25,121],[28,120],[35,137],[30,130],[25,122],
+    [20,75],[25,68],[30,65],[35,60],[40,52],[38,45],[36,36],
+    // Australia
+    [-15,130],[-20,122],[-22,114],[-27,114],[-32,115],[-35,117],[-38,140],[-39,147],
+    [-38,148],[-35,150],[-32,152],[-30,153],[-25,152],[-20,148],[-15,145],[-12,137],
+    [-15,132],[-13,130],
+  ];
+  mapCtx.fillStyle = 'rgba(255,255,255,0.04)';
+  continentPts.forEach(([lat,lng]) => {
+    const {x,y} = latLngToXY(lat, lng, W, H);
+    mapCtx.fillRect(x, y, 1.5, 1.5);
+  });
+
+  // Sites
+  SITES.forEach(site => {
+    const {x, y} = latLngToXY(site.lat, site.lng, W, H);
+    const isActive = site.next !== 'TBD';
+    const r = Math.max(3, Math.min(6, site.launches/120*4 + 2));
+
+    if (isActive) {
+      const pulse = 0.4 + 0.6 * Math.abs(Math.sin(mapAnim * 0.025 + site.lat * 0.3));
+      mapCtx.beginPath();
+      mapCtx.arc(x, y, r + 4 + pulse * 4, 0, Math.PI*2);
+      mapCtx.strokeStyle = `rgba(255,255,255,${0.06 + pulse * 0.08})`;
+      mapCtx.lineWidth = 1;
+      mapCtx.stroke();
+    }
+
+    // Dot — strict B&W
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r, 0, Math.PI*2);
+    mapCtx.fillStyle = isActive ? '#ffffff' : '#666666';
+    mapCtx.fill();
+
+    if (site.launches > 300) {
+      mapCtx.fillStyle = 'rgba(255,255,255,0.5)';
+      mapCtx.font = '7px Space Mono, monospace';
+      mapCtx.fillText(site.country, x + r + 2, y + 3);
+    }
+  });
+
+  requestAnimationFrame(drawMapBW);
+}
+
+// Map hover label
+mapCanvas.addEventListener('mousemove', function(e) {
+  const rect = mapCanvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (mapCanvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (mapCanvas.height / rect.height);
+  const W = mapCanvas.width, H = mapCanvas.height;
+  let hit = null;
+  SITES.forEach(s => {
+    const {x, y} = latLngToXY(s.lat, s.lng, W, H);
+    if (Math.sqrt((mx-x)**2+(my-y)**2) < 10) hit = s;
+  });
+  const lbl = document.getElementById('mapHoverLabel');
+  if (hit) {
+    lbl.textContent = `${hit.name} · ${hit.country} · ${hit.launches} launches · ${hit.successRate}% success`;
+    mapCanvas.style.cursor = 'pointer';
+  } else {
+    lbl.textContent = 'Hover a site for details';
+    mapCanvas.style.cursor = 'default';
+  }
+});
+
+/* ═══════════════════════════════════════════════════
+   MARKET CANVAS — B&W odds chart
+═══════════════════════════════════════════════════ */
+const mktCanvas = document.getElementById('mktCanvas');
+const mktCtx = mktCanvas.getContext('2d');
+let mktAnim = 0;
+
+function resizeMkt() {
+  const wrap = document.getElementById('mktWrap');
+  mktCanvas.width = wrap.clientWidth || 400;
+  mktCanvas.height = wrap.clientHeight || 360;
+}
+
+function drawMarket() {
+  mktAnim++;
+  const W = mktCanvas.width, H = mktCanvas.height;
+  mktCtx.clearRect(0, 0, W, H);
+
+  mktCtx.fillStyle = '#050505';
+  mktCtx.fillRect(0, 0, W, H);
+
+  // Generate "live market" price history
+  const pts = 80;
+  const prices = [];
+  let p = 0.55;
+  for (let i = 0; i < pts; i++) {
+    p += (Math.random() - 0.48) * 0.025;
+    p += 0.001 * Math.sin(mktAnim * 0.01 + i * 0.2);
+    p = Math.max(0.2, Math.min(0.95, p));
+    prices.push(p);
+  }
+
+  const padL = 40, padR = 20, padT = 30, padB = 40;
+  const gW = W - padL - padR, gH = H - padT - padB;
+
+  // Grid
+  mktCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+  mktCtx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + gH - (i/4)*gH;
+    mktCtx.beginPath(); mktCtx.moveTo(padL, y); mktCtx.lineTo(padL+gW, y); mktCtx.stroke();
+    mktCtx.fillStyle = 'rgba(255,255,255,0.25)';
+    mktCtx.font = '8px Space Mono, monospace';
+    mktCtx.fillText((i*25)+'¢', 2, y + 3);
+  }
+  for (let i = 0; i <= 4; i++) {
+    const x = padL + (i/4)*gW;
+    mktCtx.beginPath(); mktCtx.moveTo(x, padT); mktCtx.lineTo(x, padT+gH); mktCtx.stroke();
+  }
+
+  // Area fill
+  mktCtx.beginPath();
+  mktCtx.moveTo(padL, padT + gH);
+  prices.forEach((v,i) => {
+    const x = padL + (i/(pts-1))*gW;
+    const y = padT + gH - v*gH;
+    i === 0 ? mktCtx.lineTo(x, y) : mktCtx.lineTo(x, y);
+  });
+  mktCtx.lineTo(padL + gW, padT + gH);
+  mktCtx.closePath();
+  const grad = mktCtx.createLinearGradient(0, padT, 0, padT+gH);
+  grad.addColorStop(0, 'rgba(255,255,255,0.15)');
+  grad.addColorStop(1, 'rgba(255,255,255,0.02)');
+  mktCtx.fillStyle = grad;
+  mktCtx.fill();
+
+  // Line
+  mktCtx.beginPath();
+  prices.forEach((v,i) => {
+    const x = padL + (i/(pts-1))*gW;
+    const y = padT + gH - v*gH;
+    i === 0 ? mktCtx.moveTo(x, y) : mktCtx.lineTo(x, y);
+  });
+  mktCtx.strokeStyle = '#ffffff';
+  mktCtx.lineWidth = 1.5;
+  mktCtx.stroke();
+
+  // Current value dot
+  const lastP = prices[prices.length-1];
+  const lx = padL + gW, ly = padT + gH - lastP*gH;
+  mktCtx.beginPath();
+  mktCtx.arc(lx, ly, 4, 0, Math.PI*2);
+  mktCtx.fillStyle = '#fff';
+  mktCtx.fill();
+
+  // Labels
+  mktCtx.fillStyle = 'rgba(255,255,255,0.4)';
+  mktCtx.font = '8px Space Mono, monospace';
+  mktCtx.fillText('callspacex.com — STARSHIP IFT-8 · SUCCESS PROBABILITY', padL, 16);
+  mktCtx.fillStyle = '#fff';
+  mktCtx.font = 'bold 12px Space Mono, monospace';
+  mktCtx.fillText(Math.round(lastP*100)+'¢', lx - 22, ly - 8);
+
+  requestAnimationFrame(drawMarket);
+}
+
+/* ── INIT ───────────────────────────────────────── */
+function init() {
+  resizeMap(); resizeMkt();
+  buildTicker(); buildSidebars(); buildMarkets(); buildSiteGrid();
+  drawMapBW(); drawMarket();
+}
+
+window.addEventListener('load', init);
+window.addEventListener('resize', () => { resizeMap(); resizeMkt(); });
+</script>
+</body>
+</html>
